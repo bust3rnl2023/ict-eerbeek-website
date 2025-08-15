@@ -1,0 +1,173 @@
+<!-- Page Header -->
+<section class="page-header">
+    <div class="hero-container">
+        <h1>Contact</h1>
+        <p>Neem contact met ons op voor al uw ICT-vragen en uitdagingen</p>
+    </div>
+</section>
+
+<!-- Page Content -->
+<div class="page-content">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start;">
+        <!-- Contact Information -->
+        <div>
+            <h2>Contactgegevens</h2>
+            <p style="margin-bottom: 2rem;">Wij staan klaar om u te helpen. Neem gerust contact met ons op via onderstaande gegevens of vul het contactformulier in.</p>
+            
+            <div class="contact-info" style="margin-bottom: 3rem;">
+                <div style="display: flex; align-items: center; margin-bottom: 1rem; padding: 1rem; background: var(--light-gray); border-radius: 10px;">
+                    <i class="fas fa-envelope" style="color: var(--primary-blue); font-size: 1.5rem; margin-right: 1rem; width: 30px;"></i>
+                    <div>
+                        <strong>E-mail</strong><br>
+                        <a href="mailto:info@ict-eerbeek.nl" style="color: var(--primary-blue); text-decoration: none;">info@ict-eerbeek.nl</a>
+                    </div>
+                </div>
+                
+                <div style="display: flex; align-items: center; margin-bottom: 1rem; padding: 1rem; background: var(--light-gray); border-radius: 10px;">
+                    <i class="fas fa-phone" style="color: var(--primary-green); font-size: 1.5rem; margin-right: 1rem; width: 30px;"></i>
+                    <div>
+                        <strong>Telefoon</strong><br>
+                        <a href="tel:+31612345678" style="color: var(--primary-green); text-decoration: none;">+31 (0)6 12345678</a>
+                    </div>
+                </div>
+                
+                <div style="display: flex; align-items: center; margin-bottom: 1rem; padding: 1rem; background: var(--light-gray); border-radius: 10px;">
+                    <i class="fas fa-map-marker-alt" style="color: var(--primary-purple); font-size: 1.5rem; margin-right: 1rem; width: 30px;"></i>
+                    <div>
+                        <strong>Locatie</strong><br>
+                        Eerbeek, Nederland
+                    </div>
+                </div>
+                
+                <div style="display: flex; align-items: center; margin-bottom: 1rem; padding: 1rem; background: var(--light-gray); border-radius: 10px;">
+                    <i class="fas fa-clock" style="color: var(--primary-brown); font-size: 1.5rem; margin-right: 1rem; width: 30px;"></i>
+                    <div>
+                        <strong>Openingstijden</strong><br>
+                        Ma-Vr: 09:00 - 17:00<br>
+                        Za: 10:00 - 14:00<br>
+                        Zo: Gesloten
+                    </div>
+                </div>
+            </div>
+            
+            <h3>Spoedgevallen</h3>
+            <p>Voor urgente ICT-problemen zijn wij 24/7 bereikbaar via ons spoednummer:</p>
+            <div style="background: linear-gradient(135deg, var(--primary-green), var(--light-green)); color: white; padding: 1.5rem; border-radius: 10px; text-align: center; margin-top: 1rem;">
+                <i class="fas fa-phone" style="font-size: 1.5rem; margin-bottom: 0.5rem;"></i><br>
+                <strong style="font-size: 1.2rem;">+31 (0)6 87654321</strong><br>
+                <small>24/7 Spoednummer</small>
+            </div>
+        </div>
+        
+        <!-- Contact Form -->
+        <div>
+            <h2>Stuur ons een bericht</h2>
+            <form id="contact-form" class="contact-form">
+                <div class="form-group">
+                    <label for="naam">Naam *</label>
+                    <input type="text" id="naam" name="naam" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="bedrijf">Bedrijf</label>
+                    <input type="text" id="bedrijf" name="bedrijf">
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">E-mailadres *</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="telefoon">Telefoonnummer</label>
+                    <input type="tel" id="telefoon" name="telefoon">
+                </div>
+                
+                <div class="form-group">
+                    <label for="onderwerp">Onderwerp *</label>
+                    <select id="onderwerp" name="onderwerp" required>
+                        <option value="">Selecteer een onderwerp</option>
+                        <option value="netwerk-security">Netwerk & Security</option>
+                        <option value="website-logo">Website & Logo Ontwerp</option>
+                        <option value="iot-ai">IoT & AI Oplossingen</option>
+                        <option value="computerhulp">All-round Computerhulp</option>
+                        <option value="offerte">Offerte Aanvraag</option>
+                        <option value="ondersteuning">Technische Ondersteuning</option>
+                        <option value="anders">Anders</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="urgentie">Urgentie</label>
+                    <select id="urgentie" name="urgentie">
+                        <option value="laag">Laag - Binnen een week</option>
+                        <option value="normaal" selected>Normaal - Binnen 2-3 dagen</option>
+                        <option value="hoog">Hoog - Binnen 24 uur</option>
+                        <option value="urgent">Urgent - Zo spoedig mogelijk</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="bericht">Bericht *</label>
+                    <textarea id="bericht" name="bericht" placeholder="Beschrijf uw vraag of probleem zo gedetailleerd mogelijk..." required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; cursor: pointer;">
+                        <input type="checkbox" name="privacy" required style="margin-right: 0.5rem;">
+                        Ik ga akkoord met het <a href="/privacybeleid" style="color: var(--primary-blue);">privacybeleid</a> *
+                    </label>
+                </div>
+                
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; cursor: pointer;">
+                        <input type="checkbox" name="nieuwsbrief" style="margin-right: 0.5rem;">
+                        Ik wil graag op de hoogte blijven van nieuws en aanbiedingen
+                    </label>
+                </div>
+                
+                <button type="submit" class="submit-button">
+                    <i class="fas fa-paper-plane" style="margin-right: 0.5rem;"></i>
+                    Bericht Versturen
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- FAQ Section -->
+    <div class="content-section" style="margin-top: 4rem;">
+        <h2>Veelgestelde Vragen</h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem;">
+            <div class="service-card">
+                <h3>Hoe snel krijg ik antwoord?</h3>
+                <p>Wij streven ernaar om binnen 4 uur te reageren op werkdagen. Voor urgente zaken kunt u ons spoednummer bellen.</p>
+            </div>
+            <div class="service-card">
+                <h3>Zijn er kosten verbonden aan een consult?</h3>
+                <p>Het eerste consult en de offerte zijn altijd gratis. Pas na goedkeuring van de offerte brengen wij kosten in rekening.</p>
+            </div>
+            <div class="service-card">
+                <h3>Werken jullie ook in het weekend?</h3>
+                <p>Voor spoedgevallen zijn wij 24/7 bereikbaar. Reguliere werkzaamheden plannen wij in overleg, ook in het weekend indien gewenst.</p>
+            </div>
+            <div class="service-card">
+                <h3>Bieden jullie onderhoud contracten?</h3>
+                <p>Ja, wij bieden verschillende onderhoudscontracten aan voor zowel particulieren als bedrijven. Neem contact op voor meer informatie.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@media (max-width: 768px) {
+    .page-content > div[style*="grid-template-columns: 1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+        gap: 2rem !important;
+    }
+    
+    .content-section div[style*="grid-template-columns: 1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+    }
+}
+</style>
+

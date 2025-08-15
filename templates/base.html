@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Title}} - ICT Eerbeek</title>
+    <meta name="description" content="{{.Description}}">
+    <meta name="keywords" content="ICT, Eerbeek, netwerk, security, website ontwerp, logo ontwerp, IoT, AI, computerhulp">
+    <meta name="author" content="ICT Eerbeek">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header class="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-logo">
+                    <img src="/static/images/logo.png" alt="ICT Eerbeek Logo" class="logo-img">
+                    <span class="logo-text">ICT Eerbeek</span>
+                </div>
+                <div class="nav-menu" id="nav-menu">
+                    <a href="/" class="nav-link {{if eq .Page "home"}}active{{end}}">Home</a>
+                    <a href="/diensten" class="nav-link {{if eq .Page "diensten"}}active{{end}}">Diensten</a>
+                    <a href="/over-ons" class="nav-link {{if eq .Page "over-ons"}}active{{end}}">Over Ons</a>
+                    <a href="/contact" class="nav-link {{if eq .Page "contact"}}active{{end}}">Contact</a>
+                    <a href="/privacybeleid" class="nav-link {{if eq .Page "privacybeleid"}}active{{end}}">Privacybeleid</a>
+                </div>
+                <div class="nav-toggle" id="nav-toggle">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        {{.Content}}
+    </main>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <div class="footer-logo">
+                    <img src="/static/images/logo.jpg" alt="ICT Eerbeek Logo" class="footer-logo-img">
+                    <span class="footer-logo-text">ICT Eerbeek</span>
+                </div>
+                <p class="footer-description">
+                    Uw betrouwbare partner voor alle ICT-oplossingen in Eerbeek en omgeving.
+                </p>
+            </div>
+            <div class="footer-section">
+                <h3>Diensten</h3>
+                <ul>
+                    <li><a href="/diensten#netwerk-security">Netwerk & Security</a></li>
+                    <li><a href="/diensten#website-logo">Website & Logo Ontwerp</a></li>
+                    <li><a href="/diensten#iot-ai">IoT & AI Oplossingen</a></li>
+                    <li><a href="/diensten#computerhulp">All-round Computerhulp</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Contact</h3>
+                <div class="contact-info">
+                    <p><i class="fas fa-envelope"></i> info@ict-eerbeek.nl</p>
+                    <p><i class="fas fa-phone"></i> +31 (0)6 12345678</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Eerbeek, Nederland</p>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>Volg Ons</h3>
+                <div class="social-links">
+                    <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
+                    <a href="#" class="social-link"><i class="fab fa-facebook"></i></a>
+                    <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 ICT Eerbeek. Alle rechten voorbehouden. | <a href="/privacybeleid">Privacybeleid</a></p>
+        </div>
+    </footer>
+
+    <script src="/static/js/main.js"></script>
+</body>
+</html>
+
