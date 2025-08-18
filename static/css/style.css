@@ -67,7 +67,7 @@ body {
 .logo-text {
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--white);
+    color: var(--dark-gray); /* Changed to dark grey */
 }
 
 .nav-menu {
