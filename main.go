@@ -1,11 +1,16 @@
 package main
 
 import (
+	"context"
 	"html/template"
+	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/generative-ai-go/genai"
+	"google.golang.org/api/option"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -34,10 +39,14 @@ type PageData struct {
 }
 
 var db *gorm.DB
+var geminiClient *genai.GenerativeModel
 
 func main() {
 	// Initialize database
 	initDatabase()
+
+	// Initialize Gemini client
+	initGeminiClient()
 
 	// Create Gin router
 	r := gin.Default()
@@ -56,6 +65,9 @@ func main() {
 	r.POST("/contact", contactPostHandler)
 	r.GET("/privacybeleid", privacybeleidHandler)
 
+	// New route for Gemini chat
+	r.POST("/chat", chatHandler)
+
 	// Start server
 	r.Run("0.0.0.0:8080")
 }
@@ -71,6 +83,46 @@ func initDatabase() {
 	err = db.AutoMigrate(&Contact{})
 	if err != nil {
 		panic("Failed to migrate database: " + err.Error())
+	}
+}
+
+func initGeminiClient() {
+	ctx := context.Background()
+	apiKey := os.Getenv("GEMINI_API_KEY")
+	if apiKey == "" {
+		log.Fatal("GEMINI_API_KEY environment variable not set")
+	}
+
+	client, err := genai.NewClient(ctx, option.WithAPIKey(apiKey))
+	if err != nil {
+		log.Fatal(err)
+	}
+	geminiClient = client.GenerativeModel("gemini-pro")
+}
+
+func chatHandler(c *gin.Context) {
+	var request struct {
+		Message string `json:"message"`
+	}
+
+	if err := c.BindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx := context.Background()
+
+	resp, err := geminiClient.GenerateContent(ctx, genai.Text(request.Message))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	if len(resp.Candidates) > 0 && len(resp.Candidates[0].Content.Parts) > 0 {
+		response := resp.Candidates[0].Content.Parts[0].(genai.Text)
+		c.JSON(http.StatusOK, gin.H{"reply": string(response)})
+	} else {
+		c.JSON(http.StatusOK, gin.H{"reply": "No response from AI."})
 	}
 }
 
@@ -350,77 +402,63 @@ func overOnsHandler(c *gin.Context) {
                 <i class="fas fa-eye"></i>
             </div>
             <h3>Onze Visie</h3>
-            <p>Wij streven ernaar de meest vertrouwde ICT-partner in de regio te zijn, bekend om onze innovatieve oplossingen, uitstekende service en langdurige klantrelaties gebaseerd op vertrouwen en expertise.</p>
-        </div>
-    </div>
-
-    <!-- Values -->
-    <div class="content-section">
-        <h2>Onze Waarden</h2>
-        <div class="services-grid">
-            <div class="service-card">
-                <div class="service-icon">
-                    <i class="fas fa-handshake"></i>
-                </div>
-                <h3>Betrouwbaarheid</h3>
-                <p>Wij staan voor onze afspraken en leveren altijd wat wij beloven. Uw vertrouwen is ons belangrijkste bezit.</p>
-            </div>
-            <div class="service-card">
-                <div class="service-icon">
-                    <i class="fas fa-lightbulb"></i>
-                </div>
-                <h3>Innovatie</h3>
-                <p>Wij blijven op de hoogte van de nieuwste technologieën en trends om u de beste oplossingen te kunnen bieden.</p>
-            </div>
-            <div class="service-card">
-                <div class="service-icon">
-                    <i class="fas fa-users"></i>
-                </div>
-                <h3>Persoonlijke Service</h3>
-                <p>Elke klant is uniek. Wij luisteren naar uw specifieke behoeften en bieden maatwerkoplossingen.</p>
-            </div>
-            <div class="service-card">
-                <div class="service-icon">
-                    <i class="fas fa-graduation-cap"></i>
-                </div>
-                <h3>Kennis Delen</h3>
-                <p>Wij geloven in het delen van kennis en helpen onze klanten om zelfstandiger te worden met technologie.</p>
-            </div>
+            <p>Wij streven ernaar de meest vertrouwde en innovatieve ICT-partner te zijn, die duurzame oplossingen levert die bijdragen aan het succes van onze klanten in een steeds digitalere wereld.</p>
         </div>
     </div>
 
     <!-- Team Section -->
     <div class="content-section">
         <h2>Ons Team</h2>
-        <p>Ons team bestaat uit ervaren ICT-professionals die elk hun eigen specialisatie hebben. Samen vormen wij een sterk team dat klaar staat om al uw ICT-uitdagingen aan te gaan.</p>
+        <p>Ons team bestaat uit gepassioneerde en gecertificeerde ICT-professionals met jarenlange ervaring in diverse vakgebieden. Wij werken nauw samen om de beste oplossingen te leveren en staan altijd klaar om u te ondersteunen.</p>
         
         <div class="team-grid">
             <div class="team-member">
-                <img src="/static/images/logo.jpg" alt="Team Member">
-                <h4>Jan van der Berg</h4>
-                <p>Oprichter & Senior ICT Consultant</p>
-                <p style="margin-top: 1rem; font-size: 0.9rem;">Specialist in netwerkbeveiliging en systeembeheer met meer dan 15 jaar ervaring in de ICT-sector.</p>
+                <img src="https://via.placeholder.com/100" alt="Teamlid 1">
+                <h4>Jan de Vries</h4>
+                <p>Oprichter & Lead Netwerk Engineer</p>
             </div>
             <div class="team-member">
-                <img src="/static/images/logo.jpg" alt="Team Member">
-                <h4>Sarah Jansen</h4>
-                <p>Web Developer & Designer</p>
-                <p style="margin-top: 1rem; font-size: 0.9rem;">Creatieve webdesigner en developer gespecialiseerd in moderne websites en gebruikerservaring.</p>
+                <img src="https://via.placeholder.com/100" alt="Teamlid 2">
+                <h4>Sophie Jansen</h4>
+                <p>Webdesigner & UI/UX Specialist</p>
             </div>
             <div class="team-member">
-                <img src="/static/images/logo.jpg" alt="Team Member">
-                <h4>Mike de Vries</h4>
-                <p>IoT & AI Specialist</p>
-                <p style="margin-top: 1rem; font-size: 0.9rem;">Expert in Internet of Things en Artificial Intelligence oplossingen voor bedrijfsautomatisering.</p>
+                <img src="https://via.placeholder.com/100" alt="Teamlid 3">
+                <h4>Mark van Dijk</h4>
+                <p>IoT & AI Ontwikkelaar</p>
+            </div>
+            <div class="team-member">
+                <img src="https://via.placeholder.com/100" alt="Teamlid 4">
+                <h4>Linda Bakker</h4>
+                <p>All-round IT Support Specialist</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Values Section -->
+    <div class="content-section">
+        <h2>Onze Waarden</h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2rem; margin-top: 2rem;">
+            <div class="service-card">
+                <h3>Klantgerichtheid</h3>
+                <p>De klant staat centraal in alles wat we doen. Wij luisteren naar uw behoeften en leveren oplossingen die echt waarde toevoegen.</p>
+            </div>
+            <div class="service-card">
+                <h3>Innovatie</h3>
+                <p>Wij blijven op de hoogte van de nieuwste technologische ontwikkelingen en passen deze toe om u de meest geavanceerde oplossingen te bieden.</p>
+            </div>
+            <div class="service-card">
+                <h3>Betrouwbaarheid</h3>
+                <p>U kunt op ons rekenen. Wij leveren wat we beloven en zorgen voor stabiele en veilige ICT-omgevingen.</p>
             </div>
         </div>
     </div>
 
     <!-- Call to Action -->
-    <div class="content-section" style="text-align: center;">
-        <h2>Klaar om Samen te Werken?</h2>
-        <p>Wij kijken ernaar uit om kennis te maken en te horen hoe wij u kunnen helpen met uw ICT-uitdagingen.</p>
-        <a href="/contact" class="cta-button" style="margin-top: 2rem; display: inline-block;">Neem Contact Op</a>
+    <div class="highlight-box">
+        <h3>Benieuwd wat wij voor u kunnen betekenen?</h3>
+        <p>Neem contact op voor een vrijblijvend gesprek. Wij helpen u graag verder!</p>
+        <a href="/contact" class="cta-button" style="margin-top: 1rem; display: inline-block;">Contact Opnemen</a>
     </div>
 </div>`
 
@@ -431,264 +469,36 @@ func overOnsHandler(c *gin.Context) {
 func contactGetHandler(c *gin.Context) {
 	data := PageData{
 		Title:       "Contact",
-		Description: "Neem contact op met ICT Eerbeek voor al uw ICT-vragen en uitdagingen. Wij staan klaar om u te helpen.",
+		Description: "Neem contact op met ICT Eerbeek voor al uw vragen over netwerk & security, website ontwerp, IoT & AI oplossingen, en computerhulp.",
 		Page:        "contact",
 	}
-
-	contactContent := `<!-- Page Header -->
-<section class="page-header">
-    <div class="hero-container">
-        <h1>Contact</h1>
-        <p>Neem contact met ons op voor al uw ICT-vragen en uitdagingen</p>
-    </div>
-</section>
-
-<!-- Page Content -->
-<div class="page-content">
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start;">
-        <!-- Contact Information -->
-        <div>
-            <h2>Contactgegevens</h2>
-            <p style="margin-bottom: 2rem;">Wij staan klaar om u te helpen. Neem gerust contact met ons op via onderstaande gegevens of vul het contactformulier in.</p>
-            
-            <div class="contact-info" style="margin-bottom: 3rem;">
-                <div style="display: flex; align-items: center; margin-bottom: 1rem; padding: 1rem; background: var(--light-gray); border-radius: 10px;">
-                    <i class="fas fa-envelope" style="color: var(--primary-blue); font-size: 1.5rem; margin-right: 1rem; width: 30px;"></i>
-                    <div>
-                        <strong>E-mail</strong><br>
-                        <a href="mailto:info@ict-eerbeek.nl" style="color: var(--primary-blue); text-decoration: none;">info@ict-eerbeek.nl</a>
-                    </div>
-                </div>
-                
-                <div style="display: flex; align-items: center; margin-bottom: 1rem; padding: 1rem; background: var(--light-gray); border-radius: 10px;">
-                    <i class="fas fa-phone" style="color: var(--primary-green); font-size: 1.5rem; margin-right: 1rem; width: 30px;"></i>
-                    <div>
-                        <strong>Telefoon</strong><br>
-                        <a href="tel:+31612345678" style="color: var(--primary-green); text-decoration: none;">+31 (0)6 12345678</a>
-                    </div>
-                </div>
-                
-                <div style="display: flex; align-items: center; margin-bottom: 1rem; padding: 1rem; background: var(--light-gray); border-radius: 10px;">
-                    <i class="fas fa-map-marker-alt" style="color: var(--primary-purple); font-size: 1.5rem; margin-right: 1rem; width: 30px;"></i>
-                    <div>
-                        <strong>Locatie</strong><br>
-                        Eerbeek, Nederland
-                    </div>
-                </div>
-                
-                <div style="display: flex; align-items: center; margin-bottom: 1rem; padding: 1rem; background: var(--light-gray); border-radius: 10px;">
-                    <i class="fas fa-clock" style="color: var(--primary-brown); font-size: 1.5rem; margin-right: 1rem; width: 30px;"></i>
-                    <div>
-                        <strong>Openingstijden</strong><br>
-                        Ma-Vr: 09:00 - 17:00<br>
-                        Za: 10:00 - 14:00<br>
-                        Zo: Gesloten
-                    </div>
-                </div>
-            </div>
-            
-            <h3>Spoedgevallen</h3>
-            <p>Voor urgente ICT-problemen zijn wij 24/7 bereikbaar via ons spoednummer:</p>
-            <div style="background: linear-gradient(135deg, var(--primary-green), var(--light-green)); color: white; padding: 1.5rem; border-radius: 10px; text-align: center; margin-top: 1rem;">
-                <i class="fas fa-phone" style="font-size: 1.5rem; margin-bottom: 0.5rem;"></i><br>
-                <strong style="font-size: 1.2rem;">+31 (0)6 87654321</strong><br>
-                <small>24/7 Spoednummer</small>
-            </div>
-        </div>
-        
-        <!-- Contact Form -->
-        <div>
-            <h2>Stuur ons een bericht</h2>
-            <form id="contact-form" class="contact-form">
-                <div class="form-group">
-                    <label for="naam">Naam *</label>
-                    <input type="text" id="naam" name="naam" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="bedrijf">Bedrijf</label>
-                    <input type="text" id="bedrijf" name="bedrijf">
-                </div>
-                
-                <div class="form-group">
-                    <label for="email">E-mailadres *</label>
-                    <input type="email" id="email" name="email" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="telefoon">Telefoonnummer</label>
-                    <input type="tel" id="telefoon" name="telefoon">
-                </div>
-                
-                <div class="form-group">
-                    <label for="onderwerp">Onderwerp *</label>
-                    <select id="onderwerp" name="onderwerp" required>
-                        <option value="">Selecteer een onderwerp</option>
-                        <option value="netwerk-security">Netwerk & Security</option>
-                        <option value="website-logo">Website & Logo Ontwerp</option>
-                        <option value="iot-ai">IoT & AI Oplossingen</option>
-                        <option value="computerhulp">All-round Computerhulp</option>
-                        <option value="offerte">Offerte Aanvraag</option>
-                        <option value="ondersteuning">Technische Ondersteuning</option>
-                        <option value="anders">Anders</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="urgentie">Urgentie</label>
-                    <select id="urgentie" name="urgentie">
-                        <option value="laag">Laag - Binnen een week</option>
-                        <option value="normaal" selected>Normaal - Binnen 2-3 dagen</option>
-                        <option value="hoog">Hoog - Binnen 24 uur</option>
-                        <option value="urgent">Urgent - Zo spoedig mogelijk</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="bericht">Bericht *</label>
-                    <textarea id="bericht" name="bericht" placeholder="Beschrijf uw vraag of probleem zo gedetailleerd mogelijk..." required></textarea>
-                </div>
-                
-                <div class="form-group">
-                    <label style="display: flex; align-items: center; cursor: pointer;">
-                        <input type="checkbox" name="privacy" required style="margin-right: 0.5rem;">
-                        Ik ga akkoord met het <a href="/privacybeleid" style="color: var(--primary-blue);">privacybeleid</a> *
-                    </label>
-                </div>
-                
-                <div class="form-group">
-                    <label style="display: flex; align-items: center; cursor: pointer;">
-                        <input type="checkbox" name="nieuwsbrief" style="margin-right: 0.5rem;">
-                        Ik wil graag op de hoogte blijven van nieuws en aanbiedingen
-                    </label>
-                </div>
-                
-                <button type="submit" class="submit-button">
-                    <i class="fas fa-paper-plane" style="margin-right: 0.5rem;"></i>
-                    Bericht Versturen
-                </button>
-            </form>
-        </div>
-    </div>
-    
-    <!-- FAQ Section -->
-    <div class="content-section" style="margin-top: 4rem;">
-        <h2>Veelgestelde Vragen</h2>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem;">
-            <div class="service-card">
-                <h3>Hoe snel krijg ik antwoord?</h3>
-                <p>Wij streven ernaar om binnen 4 uur te reageren op werkdagen. Voor urgente zaken kunt u ons spoednummer bellen.</p>
-            </div>
-            <div class="service-card">
-                <h3>Zijn er kosten verbonden aan een consult?</h3>
-                <p>Het eerste consult en de offerte zijn altijd gratis. Pas na goedkeuring van de offerte brengen wij kosten in rekening.</p>
-            </div>
-            <div class="service-card">
-                <h3>Werken jullie ook in het weekend?</h3>
-                <p>Voor spoedgevallen zijn wij 24/7 bereikbaar. Reguliere werkzaamheden plannen wij in overleg, ook in het weekend indien gewenst.</p>
-            </div>
-            <div class="service-card">
-                <h3>Bieden jullie onderhoud contracten?</h3>
-                <p>Ja, wij bieden verschillende onderhoudscontracten aan voor zowel particulieren als bedrijven. Neem contact op voor meer informatie.</p>
-            </div>
-        </div>
-    </div>
-</div>`
-
-	data.Content = template.HTML(contactContent)
-	c.HTML(http.StatusOK, "base.html", data)
+	c.HTML(http.StatusOK, "contact.html", data)
 }
 
 func contactPostHandler(c *gin.Context) {
 	var contact Contact
-
 	if err := c.ShouldBindJSON(&contact); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": "Invalid form data"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Validate required fields
-	if contact.Naam == "" || contact.Email == "" || contact.Onderwerp == "" || contact.Bericht == "" || !contact.Privacy {
-		c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": "Missing required fields"})
-		return
-	}
-
-	// Set default urgency if not provided
-	if contact.Urgentie == "" {
-		contact.Urgentie = "normaal"
-	}
-
-	// Set creation time
 	contact.CreatedAt = time.Now()
 
-	// Save to database
-	if err := db.Create(&contact).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": "Failed to save contact"})
+	if result := db.Create(&contact); result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success": true, "message": "Contact form submitted successfully"})
+	c.JSON(http.StatusOK, gin.H{"message": "Bericht succesvol verzonden!"})
 }
 
 func privacybeleidHandler(c *gin.Context) {
 	data := PageData{
 		Title:       "Privacybeleid",
-		Description: "Privacybeleid van ICT Eerbeek - Hoe wij omgaan met uw persoonlijke gegevens en welke rechten u heeft.",
+		Description: "Lees het privacybeleid van ICT Eerbeek. Wij respecteren uw privacy en zorgen voor een veilige verwerking van uw persoonsgegevens.",
 		Page:        "privacybeleid",
 	}
-
-	privacyContent := `<!-- Page Header -->
-<section class="page-header">
-    <div class="hero-container">
-        <h1>Privacybeleid</h1>
-        <p>Hoe wij omgaan met uw persoonlijke gegevens</p>
-    </div>
-</section>
-
-<!-- Page Content -->
-<div class="page-content">
-    <div class="content-section">
-        <p><strong>Laatst bijgewerkt:</strong> 1 januari 2024</p>
-        
-        <h2>1. Inleiding</h2>
-        <p>ICT Eerbeek hecht grote waarde aan de bescherming van uw persoonlijke gegevens. In dit privacybeleid leggen wij uit welke persoonlijke gegevens wij verzamelen, hoe wij deze gebruiken en welke rechten u heeft met betrekking tot uw gegevens.</p>
-        
-        <h2>2. Contactgegevens</h2>
-        <div class="service-card">
-            <h3>Verantwoordelijke voor de gegevensverwerking:</h3>
-            <p>
-                <strong>ICT Eerbeek</strong><br>
-                E-mail: info@ict-eerbeek.nl<br>
-                Telefoon: +31 (0)6 12345678<br>
-                Adres: Eerbeek, Nederland
-            </p>
-        </div>
-        
-        <h2>3. Welke gegevens verzamelen wij?</h2>
-        <p>Wij kunnen de volgende categorieën persoonlijke gegevens van u verzamelen:</p>
-        
-        <h3>3.1 Contactgegevens</h3>
-        <ul style="margin-left: 2rem; margin-bottom: 1rem;">
-            <li>Naam en achternaam</li>
-            <li>E-mailadres</li>
-            <li>Telefoonnummer</li>
-            <li>Bedrijfsnaam (indien van toepassing)</li>
-            <li>Adresgegevens</li>
-        </ul>
-        
-        <h2>4. Contact en klachten</h2>
-        <div class="highlight-box">
-            <h3>Contact opnemen</h3>
-            <p>
-                <strong>E-mail:</strong> privacy@ict-eerbeek.nl<br>
-                <strong>Telefoon:</strong> +31 (0)6 12345678<br>
-                <strong>Post:</strong> ICT Eerbeek, Eerbeek, Nederland
-            </p>
-        </div>
-    </div>
-</div>`
-
-	data.Content = template.HTML(privacyContent)
-	c.HTML(http.StatusOK, "base.html", data)
+	c.HTML(http.StatusOK, "privacybeleid.html", data)
 }
+
 
